@@ -5,15 +5,6 @@ import time
 import string
 import base64
 from bs4 import BeautifulSoup
-import requests
-
-import requests
-import re
-import random
-import time
-import string
-import base64
-from bs4 import BeautifulSoup
 
 def Tele(ccx):
     # Strip any extra spaces
@@ -56,12 +47,28 @@ def Tele(ccx):
 
     try:
         response = requests.post('https://chkr.cc/api.php', headers=headers, data=data)
-    try:
-    	ii=response['msg']
-    except:
-    	return 'Live' or 'Thank You'
-    return ii
-import requests
+        
+        # Debugging output
+        print(f"Status Code: {response.status_code}")
+        print(f"Response Text: {response.text}")
+
+        if response.status_code != 200:
+            return f"HTTP Error {response.status_code}"
+
+        # Check if response is empty
+        if not response.text.strip():
+            return "Empty Response from Server"
+
+        response_json = response.json()
+        return response_json.get('msg', 'Unknown Response')
+    
+    except requests.exceptions.RequestException as e:
+        print(f"Request Error: {e}")
+        return "Request Failed"
+    
+    except ValueError:
+        print("Error: Response is not in JSON format.")
+        return "Invalid JSON Response"
 
 def Tele1(ccx):
     # Strip any extra spaces
@@ -104,8 +111,25 @@ def Tele1(ccx):
 
     try:
         response = requests.post('https://chkr.cc/api.php', headers=headers, data=data)
-    try:
-    	ii=response['msg']
-    except:
-    	return 'Live' or 'Thank You'
-    return ii
+        
+        # Debugging output
+        print(f"Status Code: {response.status_code}")
+        print(f"Response Text: {response.text}")
+
+        if response.status_code != 200:
+            return f"HTTP Error {response.status_code}"
+
+        # Check if response is empty
+        if not response.text.strip():
+            return "Empty Response from Server"
+
+        response_json = response.json()
+        return response_json.get('msg', 'Unknown Response')
+    
+    except requests.exceptions.RequestException as e:
+        print(f"Request Error: {e}")
+        return "Request Failed"
+    
+    except ValueError:
+        print("Error: Response is not in JSON format.")
+        return "Invalid JSON Response"
