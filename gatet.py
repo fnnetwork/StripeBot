@@ -28,21 +28,21 @@ def Tele(ccx):
         'x-requested-with': 'XMLHttpRequest',
     }
 
-    data = {
+    params = {
         'data': f'{n}|{mm}|20{yy}|{cvc}',
         'key': '',
     }
 
     try:
-        response = requests.post('https://chkr.cc/api.php', headers=headers, data=data)
+        response = requests.get('https://chkr.cc/api.php', headers=headers, params=params)
 
         # ✅ Debugging: Print Response
         print(f"\n🔹 Response Status: {response.status_code}")
         print(f"🔹 Response Headers: {response.headers}")
         print(f"🔹 Response Text: {response.text}\n")
 
-        if response.status_code != 200:
-            return f"❌ HTTP Error {response.status_code}"
+        if response.status_code == 405:
+            return "❌ Method Not Allowed - Try a Different Request Type"
 
         if not response.text.strip():
             return "❌ Empty Response from Server"
@@ -82,21 +82,21 @@ def Tele1(ccx):
         'x-requested-with': 'XMLHttpRequest',
     }
 
-    data = {
+    params = {
         'data': f'{n}|{mm}|20{yy}|{cvc}',
         'key': '',
     }
 
     try:
-        response = requests.post('https://chkr.cc/api.php', headers=headers, data=data)
+        response = requests.get('https://chkr.cc/api.php', headers=headers, params=params)
 
         # ✅ Debugging: Print Response
         print(f"\n🔹 Response Status: {response.status_code}")
         print(f"🔹 Response Headers: {response.headers}")
         print(f"🔹 Response Text: {response.text}\n")
 
-        if response.status_code != 200:
-            return f"❌ HTTP Error {response.status_code}"
+        if response.status_code == 405:
+            return "❌ Method Not Allowed - Try a Different Request Type"
 
         if not response.text.strip():
             return "❌ Empty Response from Server"
