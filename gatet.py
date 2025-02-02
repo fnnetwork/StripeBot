@@ -5,29 +5,19 @@ import time
 import string
 import base64
 from bs4 import BeautifulSoup
-import requests
 
 def Tele(ccx):
-    # Strip any extra spaces
     ccx = ccx.strip()
 
     try:
-        # Split the card details into number, month, year, and CVC
-        n = ccx.split("|")[0]
-        mm = ccx.split("|")[1]
-        yy = ccx.split("|")[2]
-        cvc = ccx.split("|")[3]
-    except IndexError:
-        print(f"Error: The input string {ccx} is not in the correct format.")
-        return
+        n, mm, yy, cvc = ccx.split("|")
+    except ValueError:
+        print(f"Error: Invalid CC format -> {ccx}")
+        return "Invalid Input Format"
 
-    # Shorten year if necessary (e.g., '2028' becomes '28')
-    if "20" in yy:
-        yy = yy.split("20")[1]
+    if yy.startswith("20"):
+        yy = yy[2:]
 
-    # Create a session
-
-    # Example headers (customize as needed)
     headers = {
         'authority': 'chkr.cc',
         'accept': '*/*',
@@ -38,44 +28,50 @@ def Tele(ccx):
         'x-requested-with': 'XMLHttpRequest',
     }
 
-    # Example data payload (customize as needed)
     data = {
-         'data':  f'{n}|{mm}|20{yy}|{cvc}',
-         'key': '',
+        'data': f'{n}|{mm}|20{yy}|{cvc}',
+        'key': '',
     }
 
-
-    # Make an API request (using a legitimate API, not the one you're working with)
-    # This is just a placeholder for a legitimate use case, e.g., Stripe API or any other
-    response = requests.post('https://chkr.cc/api.php', headers=headers, data=data).json()
     try:
-    	ii=response['msg']
-    except:
-    	return 'Live' or 'Thank You'
-    return ii
-import requests
+        response = requests.post('https://chkr.cc/api.php', headers=headers, data=data)
+
+        # ✅ Debugging: Print Response
+        print(f"\n🔹 Response Status: {response.status_code}")
+        print(f"🔹 Response Headers: {response.headers}")
+        print(f"🔹 Response Text: {response.text}\n")
+
+        if response.status_code != 200:
+            return f"❌ HTTP Error {response.status_code}"
+
+        if not response.text.strip():
+            return "❌ Empty Response from Server"
+
+        if "<html" in response.text.lower():
+            return "❌ Received HTML Page instead of JSON"
+
+        try:
+            response_json = response.json()
+            return response_json.get('msg', 'Unknown Response')
+        except ValueError:
+            return "❌ Error: Response is not valid JSON."
+
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Request Error: {e}")
+        return "Request Failed"
 
 def Tele1(ccx):
-    # Strip any extra spaces
     ccx = ccx.strip()
 
     try:
-        # Split the card details into number, month, year, and CVC
-        n = ccx.split("|")[0]
-        mm = ccx.split("|")[1]
-        yy = ccx.split("|")[2]
-        cvc = ccx.split("|")[3]
-    except IndexError:
-        print(f"Error: The input string {ccx} is not in the correct format.")
-        return
+        n, mm, yy, cvc = ccx.split("|")
+    except ValueError:
+        print(f"Error: Invalid CC format -> {ccx}")
+        return "Invalid Input Format"
 
-    # Shorten year if necessary (e.g., '2028' becomes '28')
-    if "20" in yy:
-        yy = yy.split("20")[1]
+    if yy.startswith("20"):
+        yy = yy[2:]
 
-    # Create a session
-
-    # Example headers (customize as needed)
     headers = {
         'authority': 'chkr.cc',
         'accept': '*/*',
@@ -86,18 +82,34 @@ def Tele1(ccx):
         'x-requested-with': 'XMLHttpRequest',
     }
 
-    # Example data payload (customize as needed)
     data = {
-         'data':  f'{n}|{mm}|20{yy}|{cvc}',
-         'key': '',
+        'data': f'{n}|{mm}|20{yy}|{cvc}',
+        'key': '',
     }
 
-
-    # Make an API request (using a legitimate API, not the one you're working with)
-    # This is just a placeholder for a legitimate use case, e.g., Stripe API or any other
-    response = requests.post('https://chkr.cc/api.php', headers=headers, data=data).json()
     try:
-    	ii=response['msg']
-    except:
-    	return 'Live' or 'Thank You'
-    return ii
+        response = requests.post('https://chkr.cc/api.php', headers=headers, data=data)
+
+        # ✅ Debugging: Print Response
+        print(f"\n🔹 Response Status: {response.status_code}")
+        print(f"🔹 Response Headers: {response.headers}")
+        print(f"🔹 Response Text: {response.text}\n")
+
+        if response.status_code != 200:
+            return f"❌ HTTP Error {response.status_code}"
+
+        if not response.text.strip():
+            return "❌ Empty Response from Server"
+
+        if "<html" in response.text.lower():
+            return "❌ Received HTML Page instead of JSON"
+
+        try:
+            response_json = response.json()
+            return response_json.get('msg', 'Unknown Response')
+        except ValueError:
+            return "❌ Error: Response is not valid JSON."
+
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Request Error: {e}")
+        return "Request Failed"
