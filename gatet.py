@@ -34,13 +34,20 @@ def Tele(ccx):
     headers = {
         'authority': 'chkr.cc',
         'accept': '*/*',
+        'accept-language': 'en-US,en;q=0.9',
         'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        # 'cookie': '_clck=1nznmx5%7C2%7Cfqj%7C0%7C1767; _clsk=1y8plkh%7C1730567385506%7C1%7C1%7Cn.clarity.ms%2Fcollect',
         'origin': 'https://chkr.cc',
         'referer': 'https://chkr.cc/',
+        'sec-ch-ua': '"Not-A.Brand";v="99", "Chromium";v="124"',
+        'sec-ch-ua-mobile': '?1',
+        'sec-ch-ua-platform': '"Android"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-origin',
         'user-agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
         'x-requested-with': 'XMLHttpRequest',
     }
-
     # Set data payload
     data = {
          'data':  f'{n}|{mm}|20{yy}|{cvc}',
@@ -75,9 +82,17 @@ def Tele1(ccx):
     headers = {
         'authority': 'chkr.cc',
         'accept': '*/*',
+        'accept-language': 'en-US,en;q=0.9',
         'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        # 'cookie': '_clck=1nznmx5%7C2%7Cfqj%7C0%7C1767; _clsk=1y8plkh%7C1730567385506%7C1%7C1%7Cn.clarity.ms%2Fcollect',
         'origin': 'https://chkr.cc',
         'referer': 'https://chkr.cc/',
+        'sec-ch-ua': '"Not-A.Brand";v="99", "Chromium";v="124"',
+        'sec-ch-ua-mobile': '?1',
+        'sec-ch-ua-platform': '"Android"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-origin',
         'user-agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
         'x-requested-with': 'XMLHttpRequest',
     }
