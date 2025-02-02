@@ -46,11 +46,19 @@ def Tele(ccx):
     }
 
     try:
+        # Try POST request first
         response = requests.post('https://chkr.cc/api.php', headers=headers, data=data)
-        
+
         # Debugging output
-        print(f"Status Code: {response.status_code}")
-        print(f"Response Text: {response.text}")
+        print(f"POST Status Code: {response.status_code}")
+        print(f"POST Response Text: {response.text}")
+
+        # Handle 405 (Method Not Allowed)
+        if response.status_code == 405:
+            print("POST not allowed, trying GET instead...")
+            response = requests.get('https://chkr.cc/api.php', headers=headers, params=data)
+            print(f"GET Status Code: {response.status_code}")
+            print(f"GET Response Text: {response.text}")
 
         if response.status_code != 200:
             return f"HTTP Error {response.status_code}"
@@ -61,11 +69,11 @@ def Tele(ccx):
 
         response_json = response.json()
         return response_json.get('msg', 'Unknown Response')
-    
+
     except requests.exceptions.RequestException as e:
         print(f"Request Error: {e}")
         return "Request Failed"
-    
+
     except ValueError:
         print("Error: Response is not in JSON format.")
         return "Invalid JSON Response"
@@ -110,11 +118,19 @@ def Tele1(ccx):
     }
 
     try:
+        # Try POST request first
         response = requests.post('https://chkr.cc/api.php', headers=headers, data=data)
-        
+
         # Debugging output
-        print(f"Status Code: {response.status_code}")
-        print(f"Response Text: {response.text}")
+        print(f"POST Status Code: {response.status_code}")
+        print(f"POST Response Text: {response.text}")
+
+        # Handle 405 (Method Not Allowed)
+        if response.status_code == 405:
+            print("POST not allowed, trying GET instead...")
+            response = requests.get('https://chkr.cc/api.php', headers=headers, params=data)
+            print(f"GET Status Code: {response.status_code}")
+            print(f"GET Response Text: {response.text}")
 
         if response.status_code != 200:
             return f"HTTP Error {response.status_code}"
@@ -125,11 +141,12 @@ def Tele1(ccx):
 
         response_json = response.json()
         return response_json.get('msg', 'Unknown Response')
-    
+
     except requests.exceptions.RequestException as e:
         print(f"Request Error: {e}")
         return "Request Failed"
-    
+
     except ValueError:
         print("Error: Response is not in JSON format.")
         return "Invalid JSON Response"
+        
