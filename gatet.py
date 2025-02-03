@@ -59,7 +59,7 @@ def Tele(ccx):
 
     # Make an API request (using a legitimate API, not the one you're working with)
     # This is just a placeholder for a legitimate use case, e.g., Stripe API or any other
-    response = requests.post('https://chkr.cc/api.php', headers=headers, data=data).json()
+    response = requests.post('https://api.chkr.cc/', headers=headers, data=data).json()
     try:
     	ii=response['msg']
     except:
