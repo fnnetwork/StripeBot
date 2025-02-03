@@ -30,9 +30,6 @@ def Tele(ccx):
     # Example headers (customize as needed)
     headers = {
         'authority': 'api.chkr.cc'
-        'method': 'POST'
-        'path': '/'
-        'scheme': 'https'
         'Accept': '*/*'
         'Accept-Encoding': 'gzip, deflate, br'
         'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8'
