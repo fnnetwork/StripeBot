@@ -34,20 +34,20 @@ def Tele(ccx):
     headers = {
         'authority': 'chkr.cc',
         'accept': '*/*',
-        'accept-encoding':'gzip, deflate, br, zstd'
-        'accept-language':'en-US,en;q=0.9'
-        'content-length':'44'
-        'content-type':'application/x-www-form-urlencoded; charset=UTF-8'
-        'origin':'https://chkr.cc'
-        'priority':'u=1, i'
-        'referer':'https://chkr.cc/'
-        'sec-ch-ua':"Not A(Brand";v="8", "Chromium";v="132", "Google Chrome";v="132"
-        'sec-ch-ua-mobile':'?0'
-        'sec-ch-ua-platform':'"Windows"'
-        'sec-fetch-dest':'empty'
-        'sec-fetch-mode':'cors'
-        'sec-fetch-site':'same-site'
-        'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36'
+        'accept-encoding': 'gzip, deflate, br, zstd'
+        'accept-language': 'en-US,en;q=0.9'
+        'content-length': '44'
+        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        'origin': 'https://chkr.cc'
+        'priority': 'u=1, i'
+        'referer': 'https://chkr.cc/'
+        'sec-ch-ua': ' "Not A(Brand";v="8", "Chromium";v="132", "Google Chrome";v="132" '
+        'sec-ch-ua-mobile': '?0'
+        'sec-ch-ua-platform': '"Windows"'
+        'sec-fetch-dest': 'empty'
+        'sec-fetch-mode': 'cors'
+        'sec-fetch-site': 'same-site'
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36'
         'x-requested-with': 'XMLHttpRequest',
     }
 
@@ -85,20 +85,20 @@ def Tele1(ccx):
     headers = {
         'authority': 'chkr.cc',
         'accept': '*/*',
-        'accept-encoding':'gzip, deflate, br, zstd'
-        'accept-language':'en-US,en;q=0.9'
-        'content-length':'44'
-        'content-type':'application/x-www-form-urlencoded; charset=UTF-8'
-        'origin':'https://chkr.cc'
-        'priority':'u=1, i'
-        'referer':'https://chkr.cc/'
-        'sec-ch-ua':"Not A(Brand";v="8", "Chromium";v="132", "Google Chrome";v="132"
-        'sec-ch-ua-mobile':'?0'
-        'sec-ch-ua-platform':'"Windows"'
-        'sec-fetch-dest':'empty'
-        'sec-fetch-mode':'cors'
-        'sec-fetch-site':'same-site'
-        'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36'
+        'accept-encoding': 'gzip, deflate, br, zstd'
+        'accept-language': 'en-US,en;q=0.9'
+        'content-length': '44'
+        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        'origin': 'https://chkr.cc'
+        'priority': 'u=1, i'
+        'referer': 'https://chkr.cc/'
+        'sec-ch-ua': ' "Not A(Brand";v="8", "Chromium";v="132", "Google Chrome";v="132" '
+        'sec-ch-ua-mobile': '?0'
+        'sec-ch-ua-platform': "Windows"
+        'sec-fetch-dest': 'empty'
+        'sec-fetch-mode': 'cors'
+        'sec-fetch-site': 'same-site'
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36'
         'x-requested-with': 'XMLHttpRequest',
     }
 
