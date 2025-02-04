@@ -138,11 +138,3 @@ def process_cards(cc_list):
         time.sleep(1)  # Rate limiting
 
     return results
-
-# Example usage
-if __name__ == "__main__":
-    test_cards = [
-        "4111111111111111|12|2025|123",
-        "4242424242424242|03|2026|456"
-    ]
-    process_cards(test_cards)
