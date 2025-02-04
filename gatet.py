@@ -4,7 +4,31 @@ import random
 import time
 import string
 from bs4 import BeautifulSoup
+import logging
 
+# Setup logging
+logging.basicConfig(level=logging.ERROR)
+
+def Tele(ccx):
+    # Strip any extra spaces
+    ccx = ccx.strip()
+
+    try:
+        # Split the card details into number, month, year, and CVC
+        n = ccx.split("|")[0]
+        mm = ccx.split("|")[1]
+        yy = ccx.split("|")[2]
+        cvc = ccx.split("|")[3]
+    except IndexError:
+        logging.error(f"Error: The input string {ccx} is not in the correct format.")
+        return
+
+    # Shorten year if necessary (e.g., '2028' becomes '28')
+    if "20" in yy:
+        yy = yy.split("20")[1]
+    
+    # For now, simulate a response (this should be replaced with actual logic)
+    return f"Card {n[:6]} - Exp: {mm}/{yy} - CVC: {cvc} is valid"
 
 def generate_random_email(length=8, domain=None):
     """Generate a random email address"""
@@ -36,6 +60,9 @@ def create_session():
         nonce = soup.find('input', {'id': 'afurd_field_nonce'})['value']
         noncee = soup.find('input', {'id': 'woocommerce-register-nonce'})['value']
 
+        if not nonce or not noncee:
+            raise ValueError("Required nonce values not found.")
+
         # Registration data
         data = {
             'afurd_field_nonce': nonce,
@@ -57,7 +84,7 @@ def create_session():
             return session
 
     except Exception as e:
-        print(f"Error creating session: {str(e)}")
+        logging.error(f"Error creating session: {str(e)}")
         return None
 
 def check_credit_card(cc, session):
@@ -137,3 +164,12 @@ def process_cards(cc_list):
         time.sleep(1)  # Rate limiting
 
     return results
+
+# Example usage
+if __name__ == "__main__":
+    test_cards = [
+        "4111111111111111|12|2025|123",
+        "4242424242424242|03|2026|456"
+    ]
+    process_cards(test_cards)
+    
