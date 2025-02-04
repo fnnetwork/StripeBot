@@ -4,6 +4,8 @@ import random
 import time
 import string
 from bs4 import BeautifulSoup
+from telethon import TelegramClient
+
 
 def generate_random_email(length=8, domain=None):
     """Generate a random email address"""
