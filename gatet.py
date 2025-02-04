@@ -9,8 +9,8 @@ import logging
 # Setup logging
 logging.basicConfig(level=logging.ERROR)
 
+# Tele function to check card status
 def Tele(ccx):
-    # Strip any extra spaces
     ccx = ccx.strip()
 
     try:
@@ -21,15 +21,20 @@ def Tele(ccx):
         cvc = ccx.split("|")[3]
     except IndexError:
         logging.error(f"Error: The input string {ccx} is not in the correct format.")
-        return
+        return "ERROR: Invalid format"
 
     # Shorten year if necessary (e.g., '2028' becomes '28')
     if "20" in yy:
         yy = yy.split("20")[1]
-    
-    # For now, simulate a response (this should be replaced with actual logic)
-    return f"Card {n[:6]} - Exp: {mm}/{yy} - CVC: {cvc} is valid"
 
+    # Here add the actual logic to determine if card is approved or declined
+    # For this example, I am assuming "APPROVED" or "DECLINED" based on card number starting digit
+    if n.startswith('4'):  # Example condition for success
+        return "APPROVED"
+    else:
+        return "DECLINED"
+
+# Generate a random email address
 def generate_random_email(length=8, domain=None):
     """Generate a random email address"""
     if domain is None:
@@ -38,6 +43,7 @@ def generate_random_email(length=8, domain=None):
     local_part = ''.join(random.choice(chars) for _ in range(length))
     return f"{local_part}@{domain}"
 
+# Create a session for authentication
 def create_session():
     """Create and return an authenticated session"""
     session = requests.Session()
@@ -87,6 +93,7 @@ def create_session():
         logging.error(f"Error creating session: {str(e)}")
         return None
 
+# Check a single credit card using the provided session
 def check_credit_card(cc, session):
     """Check a single credit card using the provided session"""
     try:
@@ -149,6 +156,7 @@ def check_credit_card(cc, session):
     except Exception as e:
         return f"Error ❌ {cc} - {str(e)}"
 
+# Process a list of credit cards
 def process_cards(cc_list):
     """Process a list of credit cards"""
     session = create_session()
