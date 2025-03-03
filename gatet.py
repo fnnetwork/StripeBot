@@ -3,13 +3,14 @@ import asyncio
 import re
 import random
 import string
-from fake_useragent import FakeUserAgent
 
-# Initialize UserAgent
-ua = FakeUserAgent()
-
-# Rest of the code remains exactly the same as previous version
-# ... [all the original code follows unchanged] ...
+# Hardcoded user agents list
+USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/109.0",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
+]
 
 async def fetch_nonce(session, url, pattern, proxy=None):
     try:
@@ -154,7 +155,7 @@ bdjqisha%7C1713641764%7C6XL7TRIFD9CrHleBLzzCSt7ymVS4pAGUu5mYFW0s5XN%7C84adb51911
 djdnsbba%7C1713641897%7CL5FleSTWtIImxvKpB3JvEdk09qZLTGEPUaxNadcBsno%7C7ebd4c043b84acda974813d5eaf330f62d91fad75f7ee3d0300f06abc52bcaf4"""
 
 async def check_cc(cc, proxy=None):
-    user_agent = ua.chrome
+    user_agent = random.choice(USER_AGENTS)
     email = f"{''.join(random.choices(string.ascii_lowercase, k=12))}@gmail.com"
     result = await Tele(
         ccx=cc,
