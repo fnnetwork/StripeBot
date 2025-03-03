@@ -3,10 +3,13 @@ import asyncio
 import re
 import random
 import string
-from fake_useragent import UserAgent
+from fake_useragent import FakeUserAgent
 
 # Initialize UserAgent
-ua = UserAgent()
+ua = FakeUserAgent()
+
+# Rest of the code remains exactly the same as previous version
+# ... [all the original code follows unchanged] ...
 
 async def fetch_nonce(session, url, pattern, proxy=None):
     try:
